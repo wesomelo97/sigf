@@ -1,50 +1,77 @@
-# SIGF 2.0 — etapa 1
+# SIGF 2.0 — Sistema Integrado de Gestão de Frequências
 
-Aplicação de demonstração para gestão funcional de servidores fictícios. **Não usar com dados reais**.
+Sistema web demonstrativo para gestão de cadastros funcionais e emissão de folhas de frequência em PDF.
 
-## 1. Requisitos
-Node.js >= 20.19 ou >= 22.12 (Vite 6 neste pacote requer Node 18+, mas sugerimos Node atualizado).
+> **Projeto de portfólio.** Todos os servidores e unidades apresentados na demonstração são fictícios. Não é um sistema oficial de órgão público e não deve ser utilizado com dados reais sem adequações e validações adicionais.
 
-## 2. Rodar
+## Contexto
+
+O projeto evolui uma solução administrativa desenvolvida anteriormente para um ambiente hospitalar, onde os registros eram mantidos em planilhas e as folhas de frequência eram preparadas com Word e mala direta. O SIGF 2.0 explora uma alternativa web centralizada, com autenticação, banco de dados online, filtros e geração de documentos.
+
+## Funcionalidades
+
+- Autenticação com Supabase Auth.
+- Perfis **administrador** e **emissor**; o emissor acessa somente a emissão de frequências.
+- CRUD de servidores demonstrativos, pesquisa, filtros e paginação para administradores.
+- Emissão de PDFs individuais e em lote, com filtros por critérios funcionais.
+- Três modelos de frequência: **II** (ECH/hora extra/plantão), **III** (vínculo normal) e **IV** (Mais Médicos).
+- Definição de períodos de emissão, incluindo intervalos que atravessam meses.
+- Dashboard com indicadores derivados do banco.
+- Histórico de emissões e auditoria de alterações cadastrais.
+- Base de demonstração com aproximadamente 1.000 registros sintéticos.
+
+## Tecnologias
+
+- **Frontend:** React, TypeScript e Vite.
+- **Interface:** CSS e Lucide React.
+- **Dados e autenticação:** Supabase (PostgreSQL, Auth e Row Level Security).
+- **Documentos:** geração de PDF no frontend.
+- **Hospedagem planejada:** Cloudflare Pages.
+
+## Execução local
+
+Requisitos: Node.js compatível com a versão do Vite declarada no `package.json`.
+
 ```bash
 npm install
 cp .env.example .env.local
 ```
-Configure `.env.local` com **Project URL** e **publishable key** (nunca a secret/service_role) do seu projeto Supabase. Depois:
+
+Configure o `.env.local`:
+
+```dotenv
+VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_SUBSTITUIR
+```
+
+Execute:
+
 ```bash
 npm run dev
 ```
 
-## 3. Banco e primeiro login
-1. Crie um projeto Supabase de teste.
-2. Em **SQL Editor**, execute `supabase/schema.sql`.
-3. Em **Authentication > Users**, adicione um usuário com e-mail e senha. Se preferir criar diretamente na interface, confirme o e-mail se solicitado.
-4. No SQL Editor, execute:
-```sql
-update public.perfis
-set papel = 'admin'
-where id = (select id from auth.users where email = 'seu@email.com');
+Para validar a versão de produção:
+
+```bash
+npm run build
 ```
-5. Acesse o app e faça login. Se já estava logado, atualize a página.
 
-## 4. O que funciona
-- Login / logout pelo Supabase Auth
-- Política RLS: somente usuários com papel `admin` visualizam e modificam `servidores`
-- CRUD: criar, listar com paginação, buscar, filtrar por situação, editar e excluir
-- Dashboard de apresentação **com métricas parciais explicitadas**
-- Área reservada para emissão de frequências
+**Nunca** inclua `.env.local`, chaves secretas, planilhas originais ou dados funcionais reais no repositório.
 
-## 5. Ainda não implementado
-- Gerador de PDF dos modelos II, III e IV
-- Auditoria e histórico de emissões
-- Importador do CSV de 1.000 servidores (será adaptado ao schema seguro)
-- Dashboards globais
+## Banco de dados
 
-O banco desta etapa armazena apenas matrícula fictícia, nome, cargo, setor, vínculo, horário, modelo e situação. **CPF, RG e informações sensíveis não foram incluídos**.
+Os scripts SQL ficam em `supabase/`. Para uma instalação nova, execute primeiro `schema.sql` e, na sequência, os scripts de implantação adicionais presentes no projeto, conforme suas dependências. Configure o primeiro administrador pelo painel do Supabase; não publique credenciais administrativas no repositório.
 
-## Estrutura
-- `src/App.tsx`: telas e lógica inicial
-- `src/style.css`: identidade visual responsiva
-- `src/lib/supabase.ts`: conexão
-- `supabase/schema.sql`: tabelas, trigger de perfis e RLS
-- `.env.example`: exemplo de configuração
+As políticas RLS devem ser revisadas antes de permitir uso por pessoas externas. A conta demonstrativa deve ter apenas as permissões de emissão definidas para o perfil `emissor`.
+
+## Screenshots
+
+As capturas de tela serão adicionadas em `docs/screenshots/`, incluindo login, dashboard, gestão de servidores, emissão e PDF gerado.
+
+## Situação
+
+**MVP demonstrativo funcional**, testado localmente. Não se apresenta como produto pronto para operação hospitalar ou emissão de documentos oficiais.
+
+## Autoria
+
+Desenvolvido por [Ewerton Melo](https://github.com/wesomelo97) como projeto de portfólio de desenvolvimento web e modernização de processos administrativos.
